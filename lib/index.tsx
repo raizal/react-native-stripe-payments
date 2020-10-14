@@ -16,6 +16,7 @@ export interface CardDetails {
 export interface PaymentResult {
   id: string,
   paymentMethodId: string,
+  paymentIntent: any
 }
 
 class Stripe {

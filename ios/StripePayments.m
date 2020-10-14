@@ -51,7 +51,8 @@ RCT_EXPORT_METHOD(confirmPayment:(NSString *)secret cardParams:(NSDictionary *)c
                 case STPPaymentHandlerActionStatusSucceeded: {
                     resolve(@{
                         @"id": paymentIntent.allResponseFields[@"id"],
-                        @"paymentMethodId": paymentIntent.paymentMethodId
+                        @"paymentMethodId": paymentIntent.paymentMethodId,
+                        @"paymentIntent": paymentIntent
                     });
                     break;
                 }
