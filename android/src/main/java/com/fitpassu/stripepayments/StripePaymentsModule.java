@@ -22,6 +22,7 @@ import com.stripe.android.model.ConfirmPaymentIntentParams;
 import com.stripe.android.model.PaymentIntent;
 import com.stripe.android.model.PaymentMethodCreateParams;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.util.Map;
 
 public class StripePaymentsModule extends ReactContextBaseJavaModule {
@@ -127,7 +128,7 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
                 WritableMap map = Arguments.createMap();
                 map.putString("id", paymentIntent.getId());
                 map.putString("paymentMethodId", paymentIntent.getPaymentMethodId());
-                map.putString("paymentIntent", gson.fromJson(gson.toJson(paymentIntent), Map.class));
+                map.putMap("paymentIntent", gson.fromJson(gson.toJson(paymentIntent), Map.class));
                 promise.resolve(map);
             } else if (status == PaymentIntent.Status.Canceled) {
                 promise.reject("StripeModule.cancelled", "");
