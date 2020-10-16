@@ -2,37 +2,37 @@ import { NativeModules } from 'react-native';
 
 const { StripePayments } = NativeModules;
 
-export interface InitParams {
-  publishingKey: string
+const InitParams = {
+  publishingKey: ''
 }
 
-export interface CardDetails {
-  number: string,
-  expMonth: number,
-  expYear: number,
-  cvc: string,
+const CardDetails = {
+  number: '',
+  expMonth: '',
+  expYear: '',
+  cvc: ''
 }
 
-export interface PaymentResult {
-  id: string,
-  paymentMethodId: string,
-  paymentIntent: any
+const PaymentResult = {
+  id: '',
+  paymentMethodId: '',
+  paymentIntent: ''
 }
 
 class Stripe {
   _stripeInitialized = false
 
-  setOptions = (options: InitParams) => {
+  setOptions = (options = InitParams) => {
     if (this._stripeInitialized) { return; }
     StripePayments.init(options.publishingKey);
     this._stripeInitialized = true;
   }
 
-  confirmPayment(clientSecret: string, cardDetails: CardDetails): Promise<PaymentResult> {
+  confirmPayment(clientSecret, cardDetails = CardDetails) {
     return StripePayments.confirmPayment(clientSecret, cardDetails)
   }
 
-  isCardValid(cardDetails: CardDetails): boolean {
+  isCardValid(cardDetails = CardDetails) {
     return StripePayments.isCardValid(cardDetails) == true;
   }
 }
