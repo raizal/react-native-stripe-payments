@@ -73,7 +73,7 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'  // From node_modules
-    implementation 'com.stripe:stripe-android:14.2.1'
+    implementation 'com.stripe:stripe-android:16.0.1'
     implementation 'com.google.code.gson:gson:2.8.6'
 }
 

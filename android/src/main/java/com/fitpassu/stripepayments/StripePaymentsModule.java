@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.BaseActivityEventListener;
 
 import com.facebook.react.bridge.WritableMap;
+import com.google.gson.FieldNamingPolicy;
 import com.stripe.android.ApiResultCallback;
 import com.stripe.android.PaymentConfiguration;
 import com.stripe.android.PaymentIntentResult;
@@ -59,7 +60,7 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
         return "StripePayments";
     }
 
-    @ReactMethod(isBlockingSynchronousMethod = false)
+    @ReactMethod
     public void init(String publishableKey) {
         PaymentConfiguration.init(
                 reactContext,
@@ -67,7 +68,7 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
         );
     }
 
-    @ReactMethod(isBlockingSynchronousMethod =  false)
+    @ReactMethod
     public void isCardValid(ReadableMap cardParams, Promise promise) {
         Card card =  new Card.Builder(
                     cardParams.getString("number"),
@@ -115,7 +116,7 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
 
         @Override
         public void onSuccess(PaymentIntentResult result) {
-            PaymentIntent paymentIntent = result.getIntent();
+            final PaymentIntent paymentIntent = result.getIntent();
             PaymentIntent.Status status = paymentIntent.getStatus();
 
             if (
@@ -123,15 +124,18 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
                     status == PaymentIntent.Status.Processing ||
                     status == PaymentIntent.Status.RequiresCapture
             ) {
-                GsonBuilder builder = new GsonBuilder();
-                Gson gson = builder.create();
+                Gson gson = new GsonBuilder()
+                        .serializeNulls()
+                        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                        .create();
 
-                String paymentIntentJSON = gson.toJson(paymentIntent);
+                String paymentIntentJson = gson.toJson(paymentIntent);
 
                 WritableMap map = Arguments.createMap();
-                map.putString("id", paymentIntent.getId()+"");
-                map.putString("paymentMethodId", paymentIntent.getPaymentMethodId()+"");
-                map.putString("paymentIntent", paymentIntentJSON);
+                map.putString("id", paymentIntent.getId());
+                map.putString("paymentMethodId", paymentIntent.getPaymentMethod().id);
+                map.putString("paymentIntent", paymentIntentJson);
+
                 promise.resolve(map);
             } else if (status == PaymentIntent.Status.Canceled) {
                 promise.reject("StripeModule.cancelled", "");
