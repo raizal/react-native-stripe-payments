@@ -32,8 +32,8 @@ class Stripe {
     return StripePayments.confirmPayment(clientSecret, cardDetails)
   }
 
-  isCardValid(cardDetails = CardDetails) {
-    return StripePayments.isCardValid(cardDetails) == true;
+  isCardValid = async (cardDetails = CardDetails) => {
+    return StripePayments.isCardValid(cardDetails);
   }
 }
 

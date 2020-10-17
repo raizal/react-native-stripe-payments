@@ -23,7 +23,6 @@ import com.stripe.android.model.PaymentIntent;
 import com.stripe.android.model.PaymentMethodCreateParams;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.util.Map;
 
 public class StripePaymentsModule extends ReactContextBaseJavaModule {
 
@@ -57,10 +56,10 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
 
     @Override
     public String getName() {
-        return "StripePaymentsModule";
+        return "StripePayments";
     }
 
-    @ReactMethod(isBlockingSynchronousMethod = true)
+    @ReactMethod(isBlockingSynchronousMethod = false)
     public void init(String publishableKey) {
         PaymentConfiguration.init(
                 reactContext,
@@ -68,8 +67,8 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
         );
     }
 
-    @ReactMethod(isBlockingSynchronousMethod =  true)
-    public boolean isCardValid(ReadableMap cardParams) {
+    @ReactMethod(isBlockingSynchronousMethod =  false)
+    public void isCardValid(ReadableMap cardParams, Promise promise) {
         Card card =  new Card.Builder(
                     cardParams.getString("number"),
                     cardParams.getInt("expMonth"),
@@ -77,7 +76,8 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
                     cardParams.getString("cvc")
                 )
                 .build();
-        return card.validateNumber() && card.validateExpiryDate() && card.validateExpMonth() && card.validateCVC();
+        boolean result = card.validateNumber() && card.validateExpiryDate() && card.validateExpMonth() && card.validateCVC();
+        promise.resolve(result);
     }
 
     @ReactMethod
@@ -120,15 +120,18 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
 
             if (
                     status == PaymentIntent.Status.Succeeded ||
-                    status == PaymentIntent.Status.Processing
+                    status == PaymentIntent.Status.Processing ||
+                    status == PaymentIntent.Status.RequiresCapture
             ) {
                 GsonBuilder builder = new GsonBuilder();
                 Gson gson = builder.create();
 
+                String paymentIntentJSON = gson.toJson(paymentIntent);
+
                 WritableMap map = Arguments.createMap();
-                map.putString("id", paymentIntent.getId());
-                map.putString("paymentMethodId", paymentIntent.getPaymentMethodId());
-                map.putMap("paymentIntent", gson.fromJson(gson.toJson(paymentIntent), ReadableMap.class));
+                map.putString("id", paymentIntent.getId()+"");
+                map.putString("paymentMethodId", paymentIntent.getPaymentMethodId()+"");
+                map.putString("paymentIntent", paymentIntentJSON);
                 promise.resolve(map);
             } else if (status == PaymentIntent.Status.Canceled) {
                 promise.reject("StripeModule.cancelled", "");
