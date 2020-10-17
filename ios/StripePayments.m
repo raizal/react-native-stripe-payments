@@ -33,7 +33,7 @@ RCT_EXPORT_METHOD(confirmPayment:(NSString *)secret cardParams:(NSDictionary *)c
     STPPaymentMethodParams *paymentMethodParams = [STPPaymentMethodParams paramsWithCard:card billingDetails:nil metadata:nil];
     STPPaymentIntentParams *paymentIntentParams = [[STPPaymentIntentParams alloc] initWithClientSecret:secret];
     paymentIntentParams.paymentMethodParams = paymentMethodParams;
-    paymentIntentParams.setupFutureUsage = @(STPPaymentIntentSetupFutureUsageOnSession);
+    paymentIntentParams.setupFutureUsage = @(STPPaymentIntentSetupFutureUsageOffSession);
 
     // Submit the payment
     STPPaymentHandler *paymentHandler = [STPPaymentHandler sharedHandler];
@@ -51,7 +51,16 @@ RCT_EXPORT_METHOD(confirmPayment:(NSString *)secret cardParams:(NSDictionary *)c
                 case STPPaymentHandlerActionStatusSucceeded: {
                     resolve(@{
                         @"id": paymentIntent.allResponseFields[@"id"],
-                        @"paymentMethodId": paymentIntent.paymentMethodId
+                        @"paymentMethodId": paymentIntent.paymentMethodId,
+                        @"paymentIntent": paymentIntent.allResponseFields
+                    });
+                    break;
+                }
+                case STPPaymentIntentStatusRequiresCapture: {
+                    resolve(@{
+                        @"id": paymentIntent.allResponseFields[@"id"],
+                        @"paymentMethodId": paymentIntent.paymentMethodId,
+                        @"paymentIntent": paymentIntent.allResponseFields
                     });
                     break;
                 }

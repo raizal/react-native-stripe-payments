@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.BaseActivityEventListener;
 
 import com.facebook.react.bridge.WritableMap;
+import com.google.gson.FieldNamingPolicy;
 import com.stripe.android.ApiResultCallback;
 import com.stripe.android.PaymentConfiguration;
 import com.stripe.android.PaymentIntentResult;
@@ -21,6 +22,8 @@ import com.stripe.android.model.Card;
 import com.stripe.android.model.ConfirmPaymentIntentParams;
 import com.stripe.android.model.PaymentIntent;
 import com.stripe.android.model.PaymentMethodCreateParams;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class StripePaymentsModule extends ReactContextBaseJavaModule {
 
@@ -54,10 +57,10 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
 
     @Override
     public String getName() {
-        return "StripePaymentsModule";
+        return "StripePayments";
     }
 
-    @ReactMethod(isBlockingSynchronousMethod = true)
+    @ReactMethod
     public void init(String publishableKey) {
         PaymentConfiguration.init(
                 reactContext,
@@ -65,8 +68,8 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
         );
     }
 
-    @ReactMethod(isBlockingSynchronousMethod =  true)
-    public boolean isCardValid(ReadableMap cardParams) {
+    @ReactMethod
+    public void isCardValid(ReadableMap cardParams, Promise promise) {
         Card card =  new Card.Builder(
                     cardParams.getString("number"),
                     cardParams.getInt("expMonth"),
@@ -74,7 +77,8 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
                     cardParams.getString("cvc")
                 )
                 .build();
-        return card.validateNumber() && card.validateExpiryDate() && card.validateExpMonth() && card.validateCVC();
+        boolean result = card.validateNumber() && card.validateExpiryDate() && card.validateExpMonth() && card.validateCVC();
+        promise.resolve(result);
     }
 
     @ReactMethod
@@ -112,16 +116,26 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
 
         @Override
         public void onSuccess(PaymentIntentResult result) {
-            PaymentIntent paymentIntent = result.getIntent();
+            final PaymentIntent paymentIntent = result.getIntent();
             PaymentIntent.Status status = paymentIntent.getStatus();
 
             if (
                     status == PaymentIntent.Status.Succeeded ||
-                    status == PaymentIntent.Status.Processing
+                    status == PaymentIntent.Status.Processing ||
+                    status == PaymentIntent.Status.RequiresCapture
             ) {
+                Gson gson = new GsonBuilder()
+                        .serializeNulls()
+                        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                        .create();
+
+                String paymentIntentJson = gson.toJson(paymentIntent);
+
                 WritableMap map = Arguments.createMap();
                 map.putString("id", paymentIntent.getId());
-                map.putString("paymentMethodId", paymentIntent.getPaymentMethodId());
+                map.putString("paymentMethodId", paymentIntent.getPaymentMethod().id);
+                map.putString("paymentIntent", paymentIntentJson);
+
                 promise.resolve(map);
             } else if (status == PaymentIntent.Status.Canceled) {
                 promise.reject("StripeModule.cancelled", "");
