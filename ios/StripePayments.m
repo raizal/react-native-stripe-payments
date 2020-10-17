@@ -60,7 +60,7 @@ RCT_EXPORT_METHOD(confirmPayment:(NSString *)secret cardParams:(NSDictionary *)c
                     resolve(@{
                         @"id": paymentIntent.allResponseFields[@"id"],
                         @"paymentMethodId": paymentIntent.paymentMethodId,
-                        @"paymentIntent": paymentIntent
+                        @"paymentIntent": paymentIntent.allResponseFields
                     });
                     break;
                 }
