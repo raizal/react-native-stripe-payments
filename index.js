@@ -1,6 +1,10 @@
-import { NativeModules, requireNativeComponent } from 'react-native';
+import React from 'react'
+import { NativeModules, requireNativeComponent, UIManager, findNodeHandle } from 'react-native';
 
 const { StripePayments } = NativeModules;
+
+// const UIManager = require('UIManager')
+
 
 const InitParams = {
   publishingKey: ''
@@ -69,19 +73,40 @@ class Stripe {
     StripePayments.init(options.publishingKey);
     this._stripeInitialized = true;
   }
-
-  async confirmPayment(clientSecret, cardDetails = CardDetails) {
-    const result = await StripePayments.confirmPayment(clientSecret, cardDetails)
-    const paymentIntent = typeof result.paymentIntent === 'string' || result.paymentIntent instanceof String ? JSON.parse(result.paymentIntent) : result.paymentIntent
-    result.paymentIntent = JSON.stringify(transformPaymentIntent(paymentIntent))
-    return result
-  }
-
-  isCardValid = async (cardDetails = CardDetails) => {
-    return StripePayments.isCardValid(cardDetails);
-  }
 }
 
-export const StripeCardInput = requireNativeComponent("StripeCardInput")
+export const StripeCardInputNativeComponent = requireNativeComponent("StripeCardInput")
+
+export class StripeCardInput extends React.Component {
+  render() {
+    return (<StripeCardInputNativeComponent
+      ref={ref => {
+        this.cardinput = ref
+      }}
+      {...this.props}
+    />)
+  }
+
+  confirmPayment(clientSecret, callback) {
+    if (callback) {
+      StripePayments.onPaymentSuccess((response, errorDetail) => {
+        if (!(typeof response === 'string' || response instanceof String)) {
+          const paymentIntent = typeof response.paymentIntent === 'string' || response.paymentIntent instanceof String ? JSON.parse(response.paymentIntent) : response.paymentIntent
+          response.paymentIntent = JSON.stringify(transformPaymentIntent(paymentIntent))
+        }
+        callback(response, errorDetail)
+        StripePayments.onPaymentSuccess(null)
+      })
+    } else {
+      StripePayments.onPaymentSuccess(callback)
+    }
+
+    UIManager.dispatchViewManagerCommand(
+      findNodeHandle(this.cardinput),
+      UIManager.StripeCardInput.Commands.confirmPayment,
+      [clientSecret],
+    );
+  }
+}
 
 export default new Stripe();
