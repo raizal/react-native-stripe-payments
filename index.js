@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, requireNativeComponent } from 'react-native';
 
 const { StripePayments } = NativeModules;
 
@@ -81,5 +81,7 @@ class Stripe {
     return StripePayments.isCardValid(cardDetails);
   }
 }
+
+export const StripeCardInput = requireNativeComponent("StripeCardInput")
 
 export default new Stripe();
