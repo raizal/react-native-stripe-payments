@@ -85,7 +85,7 @@ public class StripeCardInputManager extends SimpleViewManager<CardMultilineWidge
     }
 
     public void confirmPayment(String clientSecret) {
-        StripePaymentsModule.self.confirmPayment(clientSecret, view.getPaymentMethodCreateParams(), null);
+        StripePaymentsModule.self.confirmPayment(clientSecret, view.getPaymentMethodCreateParams());
     }
 
     public boolean isValid() {

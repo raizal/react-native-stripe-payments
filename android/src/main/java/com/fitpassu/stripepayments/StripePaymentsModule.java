@@ -5,7 +5,6 @@ import android.content.Intent;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -36,23 +35,23 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
     public static StripePaymentsModule self;
 
     private Stripe stripe;
-    private Promise paymentPromise;
     private Callback paymentCallback;
 
     private final ActivityEventListener activityListener = new BaseActivityEventListener() {
 
         @Override
         public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
-            if ((paymentPromise == null && paymentCallback == null) || stripe == null) {
+            if (paymentCallback == null || stripe == null) {
                 super.onActivityResult(activity, requestCode, resultCode, data);
                 return;
             }
             boolean handled = false;
-            if (paymentPromise != null) {
-                handled = stripe.onPaymentResult(requestCode, data, new PaymentResultCallback(paymentPromise));
-            } else {
-                handled = stripe.onPaymentResult(requestCode, data, new PaymentResultCallback(paymentCallback));
-            }
+                handled = stripe.onPaymentResult(requestCode, data, new PaymentResultCallback(paymentCallback, new Runnable() {
+                    @Override
+                    public void run() {
+                        paymentCallback = null;
+                    }
+                }));
             if (!handled) {
                 super.onActivityResult(activity, requestCode, resultCode, data);
             }
@@ -87,20 +86,7 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void isCardValid(ReadableMap cardParams, Promise promise) {
-        Card card =  new Card.Builder(
-                    cardParams.getString("number"),
-                    cardParams.getInt("expMonth"),
-                    cardParams.getInt("expYear"),
-                    cardParams.getString("cvc")
-                )
-                .build();
-        boolean result = card.validateNumber() && card.validateExpiryDate() && card.validateExpMonth() && card.validateCVC();
-        promise.resolve(result);
-    }
-
-    @ReactMethod
-    public void confirmPayment(String secret, ReadableMap cardParams, final Promise promise) {
+    public void confirmPayment(String secret, ReadableMap cardParams) {
         PaymentMethodCreateParams.Card card = new PaymentMethodCreateParams.Card(
                 cardParams.getString("number"),
                 cardParams.getInt("expMonth"),
@@ -110,25 +96,21 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
                 null
         );
         PaymentMethodCreateParams params = PaymentMethodCreateParams.create(card);
-        this.confirmPayment(secret, params, promise);
+        this.confirmPayment(secret, params);
     }
 
-    public void confirmPayment(String secret, PaymentMethodCreateParams params, final Promise promise) {
+    public void confirmPayment(String secret, PaymentMethodCreateParams params) {
         Map<String, String> extraParams = new HashMap<>();
         extraParams.put("setup_future_usage", "off_session");
 
         ConfirmPaymentIntentParams confirmParams = ConfirmPaymentIntentParams
                 .createWithPaymentMethodCreateParams(params, secret, null, false, extraParams);
         if (params == null) {
-            if (promise != null) {
-                promise.reject("", "StripeModule.invalidPaymentIntentParams");
-            } else  if (paymentCallback != null) {
+            if (paymentCallback != null) {
                 paymentCallback.invoke("StripeModule.invalidPaymentIntentParams", "Bad Request");
             }
             return;
         }
-
-        paymentPromise = promise;
         stripe = new Stripe(
                 reactContext,
                 PaymentConfiguration.getInstance(reactContext).getPublishableKey()
@@ -137,15 +119,12 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
     }
 
     private static final class PaymentResultCallback implements ApiResultCallback<PaymentIntentResult> {
-        private Promise promise = null;
         private Callback callback = null;
+        private Runnable runAfterDone;
 
-        PaymentResultCallback(Callback callback) {
+        PaymentResultCallback(Callback callback, Runnable runAfterDone) {
             this.callback = callback;
-        }
-
-        PaymentResultCallback(Promise promise) {
-            this.promise = promise;
+            this.runAfterDone = runAfterDone;
         }
 
         @Override
@@ -170,33 +149,27 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
                 map.putString("paymentMethodId", paymentIntent.getPaymentMethod().id);
                 map.putString("paymentIntent", paymentIntentJson);
 
-                if (promise != null) {
-                    promise.resolve(map);
-                } else if (callback != null) {
+                if (callback != null) {
                     callback.invoke(map);
                 }
             } else if (status == PaymentIntent.Status.Canceled) {
-                if (promise != null) {
-                    promise.reject("StripeModule.cancelled", "");
-                } else if (callback != null){
+                if (callback != null){
                     callback.invoke("StripeModule.cancelled", "");
                 }
             } else {
-                if (promise != null) {
-                    promise.reject("StripeModule.failed", status.toString());
-                } else if (callback != null){
+                if (callback != null){
                     callback.invoke("StripeModule.failed", status.toString());
                 }
             }
             
-            this.paymentCallback = null
+            if (runAfterDone != null) {
+                runAfterDone.run();
+            }
         }
 
         @Override
         public void onError(Exception e) {
-            if (promise != null) {
-                promise.reject("StripeModule.failed", e.getMessage());
-            } else if (callback != null){
+            if (callback != null){
                 callback.invoke("StripeModule.failed", e.getMessage());
             }
         }
