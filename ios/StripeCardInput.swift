@@ -15,6 +15,7 @@ class StripeCardInput: UIView {
     lazy var stripeInput: STPPaymentCardTextField = {
         let control = STPPaymentCardTextField()
         control.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        control.postalCodeEntryEnabled = false
         control.delegate = self
         return control
     }()
