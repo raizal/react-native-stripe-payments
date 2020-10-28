@@ -20,6 +20,6 @@ Pod::Spec.new do |s|
   
   s.pod_target_xcconfig = { "DEFINES_MODULE" => "YES" }
   s.dependency "React"
-  s.dependency "Stripe", "~> 19.0"
+  s.dependency "Stripe", "~> 20.0"
 end
 
