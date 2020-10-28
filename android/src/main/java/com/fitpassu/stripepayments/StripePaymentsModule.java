@@ -188,6 +188,8 @@ public class StripePaymentsModule extends ReactContextBaseJavaModule {
                     callback.invoke("StripeModule.failed", status.toString());
                 }
             }
+            
+            this.paymentCallback = null
         }
 
         @Override

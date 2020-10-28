@@ -1,5 +1,6 @@
 import React from 'react'
 import { NativeModules, requireNativeComponent, UIManager, findNodeHandle } from 'react-native';
+import { Platform } from 'react-native';
 
 const { StripePayments } = NativeModules;
 
@@ -87,7 +88,7 @@ export class StripeCardInput extends React.Component {
     />)
   }
 
-  confirmPayment(clientSecret, callback) {
+  confirmPayment = (clientSecret, callback) => {
     if (callback) {
       StripePayments.onPaymentSuccess((response, errorDetail) => {
         if (!(typeof response === 'string' || response instanceof String)) {
@@ -95,7 +96,6 @@ export class StripeCardInput extends React.Component {
           response.paymentIntent = JSON.stringify(transformPaymentIntent(paymentIntent))
         }
         callback(response, errorDetail)
-        StripePayments.onPaymentSuccess(null)
       })
     } else {
       StripePayments.onPaymentSuccess(callback)
