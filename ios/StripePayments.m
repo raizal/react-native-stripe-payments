@@ -1,79 +1,21 @@
-#import "StripePayments.h"
-#import <React/RCTLog.h>
-#import <React/RCTConvert.h>
+//
+//  StripePayments.m
+//  StripePayments
+//
+//  Created by Travlr on 27/10/20.
+//  Copyright © 2020 Facebook. All rights reserved.
+//
 
-@implementation StripePayments
+#import <React/RCTBridgeModule.h>
+#import <Stripe/Stripe.h>
 
-RCT_EXPORT_MODULE()
+@interface RCT_EXTERN_MODULE(StripePayments, NSObject)
 
-RCT_EXPORT_METHOD(init:(NSString *)publishableKey)
-{
-    [Stripe setDefaultPublishableKey:publishableKey];
-}
-
-RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(isCardValid:(NSDictionary *)cardParams)
-{
-    STPCardParams *card = [[STPCardParams alloc] init];
-    card.number = [RCTConvert NSString:cardParams[@"number"]];
-    card.expYear = [[RCTConvert NSNumber:cardParams[@"expYear"]] unsignedIntegerValue];
-    card.expMonth = [[RCTConvert NSNumber:cardParams[@"expMonth"]] unsignedIntegerValue];
-    card.cvc = [RCTConvert NSString:cardParams[@"cvc"]];
-    BOOL result = ([STPCardValidator validationStateForCard:card] == STPCardValidationStateValid);
-    return [NSString stringWithFormat:@"%@", @(result)];
-}
-
-RCT_EXPORT_METHOD(confirmPayment:(NSString *)secret cardParams:(NSDictionary *)cardParams resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    // Collect card details
-    STPPaymentMethodCardParams *card = [[STPPaymentMethodCardParams alloc] init];
-    card.number = [RCTConvert NSString:cardParams[@"number"]];
-    card.expYear = [RCTConvert NSNumber:cardParams[@"expYear"]];
-    card.expMonth = [RCTConvert NSNumber:cardParams[@"expMonth"]];
-    card.cvc = [RCTConvert NSString:cardParams[@"cvc"]];
-    STPPaymentMethodParams *paymentMethodParams = [STPPaymentMethodParams paramsWithCard:card billingDetails:nil metadata:nil];
-    STPPaymentIntentParams *paymentIntentParams = [[STPPaymentIntentParams alloc] initWithClientSecret:secret];
-    paymentIntentParams.paymentMethodParams = paymentMethodParams;
-    paymentIntentParams.setupFutureUsage = @(STPPaymentIntentSetupFutureUsageOffSession);
-
-    // Submit the payment
-    STPPaymentHandler *paymentHandler = [STPPaymentHandler sharedHandler];
-    [paymentHandler confirmPayment:paymentIntentParams withAuthenticationContext:self completion:^(STPPaymentHandlerActionStatus status, STPPaymentIntent *paymentIntent, NSError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            switch (status) {
-                case STPPaymentHandlerActionStatusFailed: {
-                    reject(@"StripeModule.failed", error.localizedDescription, nil);
-                    break;
-                }
-                case STPPaymentHandlerActionStatusCanceled: {
-                    reject(@"StripeModule.cancelled", @"", nil);
-                    break;
-                }
-                case STPPaymentHandlerActionStatusSucceeded: {
-                    resolve(@{
-                        @"id": paymentIntent.allResponseFields[@"id"],
-                        @"paymentMethodId": paymentIntent.paymentMethodId,
-                        @"paymentIntent": paymentIntent.allResponseFields
-                    });
-                    break;
-                }
-                case STPPaymentIntentStatusRequiresCapture: {
-                    resolve(@{
-                        @"id": paymentIntent.allResponseFields[@"id"],
-                        @"paymentMethodId": paymentIntent.paymentMethodId,
-                        @"paymentIntent": paymentIntent.allResponseFields
-                    });
-                    break;
-                }
-                default:
-                    break;
-            }
-        });
-    }];
-}
-
-- (UIViewController *)authenticationPresentingViewController
-{
-    return RCTPresentedViewController();
-}
+RCT_EXTERN_METHOD(onPaymentSuccess:(RCTResponseSenderBlock)callback)
+RCT_EXTERN_METHOD(init:(NSString *)publishableKey)
+RCT_EXTERN_METHOD(
+    confirmPayment:(NSString *)secret
+    cardParams:(STPPaymentMethodCardParams *)cardParams
+)
 
 @end

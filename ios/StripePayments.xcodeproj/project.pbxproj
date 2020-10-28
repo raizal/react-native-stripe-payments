@@ -6,6 +6,14 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8D4DBC3D2547DA4C007069BB /* StripePayments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4DBC3C2547DA4C007069BB /* StripePayments.swift */; };
+		8D4DBC412547DA98007069BB /* StripePayments.m in Sources */ = {isa = PBXBuildFile; fileRef = 8D4DBC402547DA98007069BB /* StripePayments.m */; };
+		8D4DBC462547F953007069BB /* StripeCardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4DBC452547F953007069BB /* StripeCardInput.swift */; };
+		8DBC3A122547C54000EEF9DA /* StripeCardInputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DBC3A112547C54000EEF9DA /* StripeCardInputManager.swift */; };
+		8DBC3A152547C59900EEF9DA /* StripeCardInputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8DBC3A142547C59900EEF9DA /* StripeCardInputManager.m */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		58B511D91A9E6C8500147676 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -20,6 +28,12 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libStripePayments.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libStripePayments.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D4DBC3C2547DA4C007069BB /* StripePayments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StripePayments.swift; sourceTree = "<group>"; };
+		8D4DBC402547DA98007069BB /* StripePayments.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StripePayments.m; sourceTree = "<group>"; };
+		8D4DBC452547F953007069BB /* StripeCardInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StripeCardInput.swift; sourceTree = "<group>"; };
+		8DBC3A102547C54000EEF9DA /* StripePayments-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "StripePayments-Bridging-Header.h"; sourceTree = "<group>"; };
+		8DBC3A112547C54000EEF9DA /* StripeCardInputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StripeCardInputManager.swift; sourceTree = "<group>"; };
+		8DBC3A142547C59900EEF9DA /* StripeCardInputManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StripeCardInputManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,7 +58,13 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				8D4DBC452547F953007069BB /* StripeCardInput.swift */,
+				8DBC3A142547C59900EEF9DA /* StripeCardInputManager.m */,
+				8DBC3A112547C54000EEF9DA /* StripeCardInputManager.swift */,
+				8D4DBC402547DA98007069BB /* StripePayments.m */,
+				8D4DBC3C2547DA4C007069BB /* StripePayments.swift */,
 				134814211AA4EA7D00B7C361 /* Products */,
+				8DBC3A102547C54000EEF9DA /* StripePayments-Bridging-Header.h */,
 			);
 			sourceTree = "<group>";
 		};
@@ -79,6 +99,7 @@
 				TargetAttributes = {
 					58B511DA1A9E6C8500147676 = {
 						CreatedOnToolsVersion = 6.1.1;
+						LastSwiftMigration = 1210;
 					};
 				};
 			};
@@ -105,6 +126,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D4DBC462547F953007069BB /* StripeCardInput.swift in Sources */,
+				8DBC3A122547C54000EEF9DA /* StripeCardInputManager.swift in Sources */,
+				8DBC3A152547C59900EEF9DA /* StripeCardInputManager.m in Sources */,
+				8D4DBC3D2547DA4C007069BB /* StripePayments.swift in Sources */,
+				8D4DBC412547DA98007069BB /* StripePayments.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +166,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEFINES_MODULE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -157,7 +184,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
@@ -199,6 +226,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
+				DEFINES_MODULE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -209,7 +237,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
@@ -225,32 +253,41 @@
 		58B511F01A9E6C8500147676 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
 				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = StripePayments;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "StripePayments-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		58B511F11A9E6C8500147676 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
 				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = StripePayments;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "StripePayments-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

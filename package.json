@@ -1,7 +1,7 @@
 {
   "name": "react-native-stripe-payments",
   "title": "React Native Stripe Payments",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Lightweight, easy to integrate and use React native library for Stripe payments (using Payment Intents) compliant with SCA (strong customer authentication).",
   "main": "index.js",
   "files": [
@@ -34,6 +34,16 @@
     "name": "Viktoras Laukevičius",
     "email": "viktoras.laukevicius@yahoo.com"
   },
+  "contributors": [
+    {
+      "name": "raizal.pregnanta",
+      "email": "raizal.pregnanta@gmail.com"
+    },
+    {
+      "name": "ptdede",
+      "email": "putu.dede@gmail.com"
+    }
+  ],
   "license": "MIT",
   "licenseFilename": "LICENSE",
   "readmeFilename": "README.md",
