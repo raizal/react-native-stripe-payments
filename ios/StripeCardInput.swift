@@ -36,7 +36,7 @@ class StripeCardInput: UIView {
 }
 
 extension StripeCardInput: STPPaymentCardTextFieldDelegate {
-    func paymentCardTextFieldDidEndEditing(_ textField: STPPaymentCardTextField) {
+    func paymentCardTextFieldDidChange(_ textField: STPPaymentCardTextField) {
         self.onCardValid!(["isValid": textField.isValid])
     }
 }
